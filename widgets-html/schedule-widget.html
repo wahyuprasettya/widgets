@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Widgets</title>
+</head>
+
+<body style="display: flex; justify-content: center;">
+    <div id="arbiter-schedule-widget-frontiers"></div>
+    <!-- <script src="https://arbiter-widget.vercel.app/beta/widgets/v1/arbiter-schedule-widget.iife.js"></script> -->
+    <!-- <script src="https://widget.arbitersports-beta.com/widgets/v1/arbiter-schedule-widget.iife.js"></script> -->
+     <script src="https://widget.arbitersports.com/widgets/v1/arbiter-schedule-widget.iife.js"></script> 
+     <!-- <script src="https://cdn.jsdelivr.net/gh/echolist/Testing@master/arbiter-schedule-widget-20260311-03.iife.js"></script> -->
+</body>
+<script>
+     ArbiterScheduleWidget.init({
+     target: "#arbiter-schedule-widget-frontiers",
+     //key: "FC19EC45-DF8E-44F0-9DE9-F1EB0724441E", 
+    //  key:"DD5BE0EA-E1AB-443D-B177-AB151BEFE8B3",
+    key:"5f830574-d34c-4ed5-b3d9-3f48d012d278",
+     options:{
+       sportId :4,
+       genderId : 1,
+       scrollEnabled:true,
+       todayForward:false,
+       primaryColor: "#1E40AF",
+     }
+   });
+</script>
+
+
+</html>
+
+

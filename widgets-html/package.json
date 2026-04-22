@@ -1,0 +1,17 @@
+{
+  "name": "project-office-widgets",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Automation tests for widget preview pages",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:roster": "playwright test tests/roster-widget.recorded.js",
+    "test:roster:headed": "playwright test --headed tests/roster-widget.recorded.js",
+    "record:roster": "playwright codegen --target=javascript --output=tests/roster-widget.recorded.js https://sandbox.demo-rst7.rschooltoday.com/roster-for-state-ado-50786/",
+    "postinstall": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}

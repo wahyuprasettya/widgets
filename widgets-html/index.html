@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu & Preview Widget</title>
+  <style>
+    :root {
+      --bg: #f2f6fb;
+      --panel: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --primary: #0f766e;
+      --primary-hover: #115e59;
+      --border: #dbe4ee;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(220px, 20%) 1fr;
+    }
+
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+    }
+
+    .sidebar h1 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+    }
+
+    .sidebar p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .menu {
+      display: grid;
+      gap: 12px;
+    }
+
+    .menu a {
+      display: block;
+      text-decoration: none;
+      text-align: center;
+      background: var(--primary);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: background 0.2s ease;
+    }
+
+    .menu a:hover {
+      background: var(--primary-hover);
+    }
+
+    .preview {
+      padding: 16px;
+    }
+
+    .preview-frame {
+      width: 100%;
+      height: calc(100vh - 32px);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .preview-frame {
+        height: 70vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <aside class="sidebar">
+      <h1>Select Page</h1>
+
+      <nav class="menu">
+        <a href="Upcoming Game Widget Preview.html" target="preview">Upcoming Game Widget Preview</a>
+        <a href="schedule-widget.html" target="preview">Schedule Widget</a>
+        <a href="Score-ticker.html" target="preview">Score Ticker</a>
+        <a href="roster-widget.html" target="preview">Roster Widget</a>
+        <a href="schedule-widget-generator.html" target="preview">Schedule Widget Generator</a>
+      </nav>
+    </aside>
+
+    <section class="preview">
+      <iframe
+        class="preview-frame"
+        name="preview"
+        src="Upcoming Game Widget Preview.html"
+        title="Preview HTML"
+      ></iframe>
+    </section>
+  </main>
+</body>
+</html>

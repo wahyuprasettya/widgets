@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>State Version</h2>
+
+<div id="arbiter-roster-state-widget"></div>
+<script src="https://cdn.jsdelivr.net/gh/echolist/Testing@master/arbiter-roster-widget-20260318-1.iife.js"></script>
+
+<script>
+    ArbiterRosterWidget.init({
+         target: "#arbiter-roster-state-widget",
+         key: "D772A8A1-515B-4394-9D28-AAC031CEE451", 
+         options:{
+             sportId :29,
+             genderId:1,
+             levelId:1,
+             title: "Golf Boys Varsity",
+             defaultSort : [
+               { field: "class", direction: "desc" },
+               { field: "jersey", direction: "asc" }
+             ],
+             // hideTitle: true,
+             hideBranding: true,
+             primaryColor: "#0057b8",
+             mainLogoUrl: "https://sectionv.org/common/controls/image_handler.aspx?thumb_id=15&image_path=/images/2019/5/8/boys_golf_logo.png",
+             titlePosition: "2",
+             // secondaryColor: "#0030b8"
+         }
+       });
+</script>
+<h2>School Version</h2>
+<div id="arbiter-roster-school-widget"></div>
+</body>
+<script>
+ArbiterRosterWidget.init({
+        target: "#arbiter-roster-school-widget",
+        key: "63edb9b1-324f-4883-b62c-dd4cafa96b20", 
+        options:{
+            teamId :11107379,
+            title: "Volleyball - D3",
+            defaultSort : [
+              { field: "class", direction: "desc" },
+              { field: "jersey", direction: "asc" }
+            ],
+            // hideTitle: true,
+            hideBranding: true,
+            primaryColor: "#0057b8",
+            // secondaryColor: "#0030b8"
+        }
+      });
+</script>
+</html>
+
+

@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schedule Widget Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --page-ink: #102332;
+      --page-muted: #5a6d7f;
+      --label-ink: #284153;
+      --page-line: rgba(16, 35, 50, 0.1);
+      --page-bg:
+        radial-gradient(circle at top left, rgba(20, 184, 166, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(245, 158, 11, 0.18), transparent 24%),
+        linear-gradient(180deg, #f5f8fb 0%, #eef5f7 52%, #f8fafc 100%);
+      --panel-bg: rgba(255, 255, 255, 0.88);
+      --panel-border: rgba(255, 255, 255, 0.72);
+      --section-bg: rgba(255, 255, 255, 0.78);
+      --panel-shadow: 0 20px 48px rgba(10, 28, 42, 0.12);
+      --accent: #0f766e;
+      --accent-soft: rgba(15, 118, 110, 0.14);
+      --accent-strong: #134e4a;
+      --warm: #f59e0b;
+      --code-bg: #0c1522;
+      --code-ink: #d7f9f2;
+      --code-muted: #8fb2c8;
+      --success: #166534;
+      --danger: #b91c1c;
+      --stat-bg: rgba(15, 23, 42, 0.04);
+      --stat-ink: #274256;
+      --preview-panel-bg: rgba(236, 242, 246, 0.68);
+      --preview-panel-border: rgba(15, 23, 42, 0.08);
+      --preview-panel-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+      --preview-meta-bg: rgba(255, 255, 255, 0.52);
+      --preview-meta-border: rgba(15, 23, 42, 0.08);
+      --preview-ink: #102332;
+      --preview-muted: #4f6678;
+      --preview-target-ink: #163247;
+      --preview-shell-bg:
+        linear-gradient(160deg, rgba(15, 118, 110, 0.12), rgba(232, 240, 245, 0.92) 34%, rgba(14, 165, 233, 0.09)),
+        rgba(238, 244, 247, 0.74);
+      --preview-shell-border: rgba(15, 23, 42, 0.04);
+      --preview-shell-shadow: none;
+      --preview-grid-color: rgba(15, 118, 110, 0.05);
+      --preview-frame-bg: transparent;
+      --preview-frame-shadow: none;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Open Sans", sans-serif;
+      color: var(--page-ink);
+      background: #ffffff;
+      min-height: 100vh;
+      transition: background 220ms ease, color 220ms ease;
+    }
+
+    h1,
+    h2,
+    h3,
+    .display-font {
+      font-family: "Space Grotesk", sans-serif;
+    }
+
+    .generator-card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--panel-shadow);
+      border: 1px solid var(--panel-border);
+      border-radius: 0;
+      transition: background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+    }
+
+    .section-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid var(--page-line);
+      border-radius: 0;
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--accent-strong);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .control-section {
+      border: 1px solid var(--page-line);
+      border-radius: 0;
+      padding: 1rem;
+      background: var(--section-bg);
+      transition: background 220ms ease, border-color 220ms ease;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .section-copy {
+      margin-top: 0.3rem;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: var(--page-muted);
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 0.45rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--label-ink);
+      letter-spacing: 0.02em;
+    }
+
+    .field-help {
+      margin-top: 0.45rem;
+      font-size: 0.76rem;
+      color: var(--page-muted);
+      line-height: 1.45;
+    }
+
+    .control-input,
+    .control-select,
+    .control-textarea {
+      width: 100%;
+      border-radius: 0;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--page-ink);
+      padding: 0.78rem 0.88rem;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .control-input:focus,
+    .control-select:focus,
+    .control-textarea:focus {
+      border-color: rgba(15, 118, 110, 0.4);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+    }
+
+    .color-swatch {
+      width: 100%;
+      height: 48px;
+      border-radius: 0;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      background: white;
+      padding: 0.15rem;
+      cursor: pointer;
+    }
+
+    .toggle-card {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 0.95rem;
+      border-radius: 0;
+      border: 1px solid var(--page-line);
+      background: rgba(255, 255, 255, 0.9);
+      transition: background 220ms ease, border-color 220ms ease;
+    }
+
+    .toggle-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 0.22rem;
+    }
+
+    .toggle-copy strong {
+      font-size: 0.93rem;
+      color: var(--page-ink);
+    }
+
+    .toggle-copy span {
+      font-size: 0.76rem;
+      color: var(--page-muted);
+      line-height: 1.45;
+    }
+
+    .toggle-check {
+      position: relative;
+      width: 20px;
+      min-width: 20px;
+      height: 20px;
+      appearance: none;
+      border-radius: 0;
+      border: 1px solid rgba(15, 23, 42, 0.22);
+      background: rgba(255, 255, 255, 0.96);
+      cursor: pointer;
+      transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+      margin-top: 0.15rem;
+      flex-shrink: 0;
+    }
+
+    .toggle-check:focus {
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+    }
+
+    .toggle-check::after {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 1px;
+      width: 6px;
+      height: 12px;
+      border: solid transparent;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+      transition: border-color 160ms ease;
+    }
+
+    .toggle-check:checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .toggle-check:checked::after {
+      border-color: white;
+    }
+
+    .pill-button {
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 0;
+      padding: 0.72rem 0.92rem;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--page-ink);
+      font-weight: 700;
+      font-size: 0.83rem;
+      transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+    }
+
+    .pill-button:hover {
+      border-color: rgba(15, 118, 110, 0.28);
+      background: rgba(15, 118, 110, 0.06);
+    }
+
+    .pill-button.is-active {
+      background: rgba(15, 118, 110, 0.12);
+      border-color: rgba(15, 118, 110, 0.28);
+      color: var(--accent-strong);
+    }
+
+    .secondary-button {
+      border-radius: 0;
+      padding: 0.85rem 1rem;
+      font-weight: 700;
+      font-size: 0.92rem;
+      transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+    }
+
+    .secondary-button {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--page-ink);
+      border: 1px solid var(--page-line);
+    }
+
+    .secondary-button:hover {
+      border-color: rgba(15, 118, 110, 0.24);
+    }
+
+    .preview-panel {
+      background: var(--preview-panel-bg);
+      border: 1px solid var(--preview-panel-border);
+      box-shadow: var(--preview-panel-shadow);
+      backdrop-filter: blur(10px);
+      color: var(--preview-ink);
+      transition: background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+    }
+
+    .preview-title {
+      color: var(--preview-ink) !important;
+    }
+
+    .preview-copy,
+    .preview-meta {
+      color: var(--preview-muted) !important;
+    }
+
+    .preview-target {
+      border: 1px solid var(--preview-meta-border);
+      background: var(--preview-meta-bg);
+      color: var(--preview-target-ink) !important;
+      transition: background 220ms ease, border-color 220ms ease, color 220ms ease;
+    }
+
+    .preview-stage {
+      position: relative;
+      min-height: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 0.15rem 0;
+      border-radius: 0;
+      overflow: hidden;
+      background: var(--preview-shell-bg);
+      border: 0;
+      box-shadow: var(--preview-shell-shadow);
+      transition: background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+    }
+
+    .preview-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, var(--preview-grid-color) 1px, transparent 1px),
+        linear-gradient(var(--preview-grid-color) 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.32;
+      pointer-events: none;
+    }
+
+    .force-mobile-preview .scrollbar-thin-custom {
+      scrollbar-width: none;
+    }
+
+    .force-mobile-preview .scrollbar-thin-custom::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .widget-frame {
+      position: relative;
+      z-index: 1;
+      min-height: 720px;
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+      background: var(--preview-frame-bg);
+      border-radius: 0;
+      box-shadow: var(--preview-frame-shadow);
+      transition: background 220ms ease, box-shadow 220ms ease;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-radius: 0;
+      border: 1px solid transparent;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .status-pill.is-ok {
+      display: none;
+    }
+
+    .status-pill.is-error {
+      background: rgba(185, 28, 28, 0.1);
+      color: var(--danger);
+      border-color: rgba(185, 28, 28, 0.16);
+    }
+
+    .secondary-group.is-disabled {
+      opacity: 0.46;
+    }
+
+    .code-card {
+      background: linear-gradient(180deg, rgba(12, 21, 34, 0.98) 0%, rgba(16, 30, 46, 0.98) 100%);
+      color: var(--code-ink);
+      border-radius: 0;
+      border: 1px solid rgba(143, 178, 200, 0.16);
+      box-shadow: 0 22px 56px rgba(12, 21, 34, 0.28);
+    }
+
+    .code-textarea {
+      min-height: 380px;
+      width: 100%;
+      resize: vertical;
+      background: transparent;
+      color: var(--code-ink);
+      border: none;
+      outline: none;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      padding: 0;
+    }
+
+    .compact-stack {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .preset-toolbar {
+      display: grid;
+      gap: 0.65rem;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      margin-top: 1rem;
+    }
+
+    .custom-key-panel[hidden] {
+      display: none;
+    }
+
+    .field-grid {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .field-grid.two-up {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field-grid.color-grid {
+      grid-template-columns: minmax(0, 1fr) 84px;
+    }
+
+    .toggle-grid {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .subtle-kicker {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-strong);
+    }
+
+    .topline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .code-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .toggle-grid,
+      .field-grid.two-up,
+      .field-grid.color-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 420ms ease both;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <script src="https://arbiter-widget.vercel.app/beta/widgets/v1/arbiter-schedule-widget.iife.js"></script>
+
+  <div class="mx-auto max-w-[1680px] px-4 py-4 lg:px-5 xl:px-6">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <a href="../../index.html"
+        class="inline-flex items-center gap-2 border border-slate-200/80 bg-white/88 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur hover:border-teal-200 hover:text-teal-800">
+        <span aria-hidden="true">&larr;</span>
+        <span>Back</span>
+      </a>
+      <div class="section-chip">
+        <span>Generator</span>
+      </div>
+    </div>
+
+    <header class="mb-4 fade-in">
+      <div class="generator-card overflow-hidden px-5 py-5 sm:px-6 lg:px-7 lg:py-6">
+        <div class="space-y-4">
+          <p class="subtle-kicker">Schedule Widget Generator</p>
+          <h1 class="max-w-4xl text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
+            Configure and preview the schedule widget.
+          </h1>
+          <p class="max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">
+            Choose a key, adjust the options, and copy the HTML snippet.
+          </p>
+          <div class="preset-toolbar">
+            <button type="button" class="pill-button is-active" data-preset="school">School Demo</button>
+            <button type="button" class="pill-button" data-preset="state">State Demo</button>
+            <button type="button" class="pill-button" data-preset="league">League Demo</button>
+            <button type="button" class="pill-button" data-preset="custom">Custom Key</button>
+          </div>
+
+          <section id="customKeyPanel" class="control-section custom-key-panel" hidden>
+            <div class="section-head">
+              <div>
+                <h3 class="display-font text-lg font-bold text-slate-900">Custom Key</h3>
+                <p class="section-copy">Choose the key type and enter the widget key you want to preview.</p>
+              </div>
+              <span class="section-chip">Required</span>
+            </div>
+
+            <div class="field-grid two-up">
+              <div>
+                <label class="field-label" for="keyType">Widget key type</label>
+                <select id="keyType" class="control-select">
+                  <option value="school">School key</option>
+                  <option value="state">State key</option>
+                  <option value="league">League key</option>
+                </select>
+                <p id="keyTypeHint" class="field-help"></p>
+              </div>
+
+              <div>
+                <label class="field-label" for="widgetKey">Widget key</label>
+                <input id="widgetKey" type="text" class="control-input" placeholder="Enter a school, state, or league key" />
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid gap-5 xl:grid-cols-[440px_minmax(0,1fr)]">
+      <aside class="fade-in xl:sticky xl:top-6 xl:self-start">
+        <div class="generator-card p-5 sm:p-5">
+          <div class="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h2 class="display-font text-2xl font-bold text-slate-900">Generator Controls</h2>
+              <p class="mt-1 text-sm text-slate-500">All widget settings in one place.</p>
+            </div>
+            <button type="button" id="resetGenerator" class="secondary-button">Reset</button>
+          </div>
+
+          <form id="generator-form" class="space-y-3">
+            <section class="control-section">
+              <div class="section-head">
+                <div>
+                  <h3 class="display-font text-lg font-bold text-slate-900">Appearance</h3>
+                </div>
+                <span class="section-chip">Optional</span>
+              </div>
+
+              <div class="compact-stack">
+                <div>
+                  <label class="field-label" for="title">Title</label>
+                  <input id="title" type="text" class="control-input" placeholder="Team Schedule" />
+                </div>
+                <div>
+                  <label class="field-label" for="logoUrl">Logo URL</label>
+                  <input id="logoUrl" type="text" class="control-input"
+                    placeholder="https://example.com/logo.png" />
+                  <p class="field-help">When set, it renders above the widget at 156px tall.</p>
+                </div>
+              </div>
+
+              <div style="margin-top: 0.85rem;">
+                <div>
+                  <label class="field-label" for="titlePosition">Title position</label>
+                  <select id="titlePosition" class="control-select">
+                    <option value="1">Inline in header</option>
+                    <option value="2">Top above widget</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field-grid two-up" style="margin-top: 0.85rem;">
+                <div>
+                  <label class="field-label" for="today">Today override</label>
+                  <input id="today" type="date" class="control-input" />
+                </div>
+                <div>
+                  <label class="field-label" for="previewHeight">Preview height</label>
+                  <input id="previewHeight" type="number" min="360" step="20" class="control-input" value="720" />
+                </div>
+              </div>
+
+              <label class="toggle-card" style="margin-top: 0.85rem;">
+                <div class="toggle-copy">
+                  <strong>Force mobile preview</strong>
+                  <span>Preview-only. Uses iPhone SE width.</span>
+                </div>
+                <input id="forceMobilePreview" type="checkbox" class="toggle-check" />
+              </label>
+
+              <label class="toggle-card" style="margin-top: 0.85rem;">
+                <div class="toggle-copy">
+                  <strong>Hide title</strong>
+                  <span>Hides the title completely, including the inline accent bars.</span>
+                </div>
+                <input id="hideTitle" type="checkbox" class="toggle-check" />
+              </label>
+
+              <div class="field-grid color-grid" style="margin-top: 0.85rem;">
+                <div>
+                  <label class="field-label" for="primaryColorText">Primary color</label>
+                  <input id="primaryColorText" type="text" class="control-input" value="#333333"
+                    placeholder="#333333 or rgb(...)" />
+                </div>
+                <div>
+                  <label class="field-label" for="primaryColorPicker">Picker</label>
+                  <input id="primaryColorPicker" type="color" class="color-swatch" value="#333333" />
+                </div>
+              </div>
+
+              <div class="field-grid color-grid" style="margin-top: 0.85rem;">
+                <div>
+                  <label class="field-label" for="secondaryColorText">Secondary color</label>
+                  <input id="secondaryColorText" type="text" class="control-input" value="#ffffff"
+                    placeholder="#ffffff or rgb(...)" />
+                </div>
+                <div>
+                  <label class="field-label" for="secondaryColorPicker">Picker</label>
+                  <input id="secondaryColorPicker" type="color" class="color-swatch" value="#ffffff" />
+                </div>
+              </div>
+            </section>
+
+            <section class="control-section">
+              <div class="section-head">
+                <div>
+                  <h3 class="display-font text-lg font-bold text-slate-900">Display &amp; Behavior</h3>
+                </div>
+              </div>
+
+              <div class="toggle-grid">
+                <label class="toggle-card">
+                  <span class="toggle-copy">
+                    <strong>Show header</strong>
+                    <span>Controls the filter row and classification tabs.</span>
+                  </span>
+                  <input id="header" type="checkbox" class="toggle-check" checked />
+                </label>
+
+                <label class="toggle-card">
+                  <span class="toggle-copy">
+                    <strong>Hide branding</strong>
+                    <span>Removes the Arbiter footer branding.</span>
+                  </span>
+                  <input id="hideBranding" type="checkbox" class="toggle-check" />
+                </label>
+
+                <label class="toggle-card">
+                  <span class="toggle-copy">
+                    <strong>Enable scrolling</strong>
+                    <span>Keeps the table or list scrollable inside the widget height.</span>
+                  </span>
+                  <input id="scrollEnabled" type="checkbox" class="toggle-check" checked />
+                </label>
+
+                <label class="toggle-card">
+                  <span class="toggle-copy">
+                    <strong>Today forward</strong>
+                    <span>Uses forward-looking schedule behavior when supported.</span>
+                  </span>
+                  <input id="todayForward" type="checkbox" class="toggle-check" />
+                </label>
+
+                <label class="toggle-card">
+                  <span class="toggle-copy">
+                    <strong>Show ALL tab</strong>
+                    <span>Shows the combined classifications tab when available.</span>
+                  </span>
+                  <input id="showAllTab" type="checkbox" class="toggle-check" />
+                </label>
+              </div>
+            </section>
+
+            <section class="control-section">
+              <div class="section-head">
+                <div>
+                  <h3 class="display-font text-lg font-bold text-slate-900">Filters</h3>
+                </div>
+              </div>
+
+              <div class="field-grid two-up">
+                <div>
+                  <label class="field-label" for="sportId">Sport ID</label>
+                  <input id="sportId" type="text" class="control-input" placeholder="e.g. 4" />
+                </div>
+                <div>
+                  <label class="field-label" for="genderId">Gender ID</label>
+                  <select id="genderId" class="control-select">
+                    <option value="">Not set</option>
+                    <option value="1">1 - Boys</option>
+                    <option value="2">2 - Girls</option>
+                    <option value="3">3 - Coed</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label" for="levelId">Level ID</label>
+                  <input id="levelId" type="text" class="control-input" placeholder="e.g. 3" />
+                </div>
+                <div>
+                  <label class="field-label" for="teamId">Team ID</label>
+                  <input id="teamId" type="text" class="control-input" placeholder="e.g. 7718578" />
+                </div>
+                <div style="grid-column: 1 / -1;">
+                  <label class="field-label" for="schoolId">School ID</label>
+                  <input id="schoolId" type="text" class="control-input" placeholder="Optional school filter" />
+                </div>
+              </div>
+            </section>
+
+          </form>
+        </div>
+      </aside>
+
+      <main class="space-y-5 fade-in">
+        <section class="preview-panel p-4 sm:p-5">
+
+          <div class="topline mb-4">
+            <div class="preview-meta text-sm font-semibold">
+              Preview target:
+              <code id="targetBadge" class="preview-target px-2 py-1">#arbiter-widget</code>
+            </div>
+          </div>
+
+          <div class="preview-stage">
+            <div id="previewFrame" class="widget-frame">
+              <div id="arbiter-widget" class="h-full w-full"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="code-card p-5 sm:p-6">
+          <div class="code-toolbar mb-4">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-cyan-200/80">Generated Embed</p>
+              <h2 class="display-font mt-2 text-2xl font-bold text-white">Copyable Plain HTML Snippet</h2>
+              <p class="mt-2 max-w-3xl text-sm leading-6 text-[var(--code-muted)]">
+                This snippet matches the current widget options.
+              </p>
+            </div>
+            <button id="copyCodeButton" type="button"
+              class="secondary-button border border-cyan-200/20 bg-white/8 text-white hover:bg-white/12">
+              Copy Code
+            </button>
+          </div>
+
+          <textarea id="generatedCode" class="code-textarea" readonly spellcheck="false"></textarea>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const FIXED_TARGET = "#arbiter-widget";
+      const PRESETS = {
+        league: {
+          keyType: "league",
+          key: "ad337b94-a28d-440b-93d6-d9faa8a5223e",
+          target: FIXED_TARGET,
+          previewHeight: 720,
+          previewMobile: false,
+          title: "",
+          logoUrl: "",
+          hideTitle: false,
+          titlePosition: 1,
+          primaryColor: "#333333",
+          secondaryColor: "#ffffff",
+          sportId: "4",
+          genderId: "2",
+          levelId: "",
+          teamId: "",
+          schoolId: "",
+          today: "",
+          header: true,
+          hideBranding: false,
+          scrollEnabled: true,
+          todayForward: false,
+          showAllTab: false,
+        },
+        school: {
+          keyType: "school",
+          key: "DD5BE0EA-E1AB-443D-B177-AB151BEFE8B3",
+          target: FIXED_TARGET,
+          previewHeight: 720,
+          previewMobile: false,
+          title: "",
+          logoUrl: "",
+          hideTitle: false,
+          titlePosition: 1,
+          primaryColor: "#333333",
+          secondaryColor: "#ffffff",
+          sportId: "25",
+          genderId: "1",
+          levelId: "",
+          teamId: "",
+          schoolId: "",
+          today: "",
+          header: true,
+          hideBranding: false,
+          scrollEnabled: true,
+          todayForward: false,
+          showAllTab: false,
+        },
+        state: {
+          keyType: "state",
+          key: "FC19EC45-DF8E-44F0-9DE9-F1EB0724441E",
+          target: FIXED_TARGET,
+          previewHeight: 760,
+          previewMobile: false,
+          title: "",
+          logoUrl: "",
+          hideTitle: false,
+          titlePosition: 1,
+          primaryColor: "#333333",
+          secondaryColor: "#ffffff",
+          sportId: "63",
+          genderId: "2",
+          levelId: "",
+          teamId: "",
+          schoolId: "",
+          today: "",
+          header: true,
+          hideBranding: false,
+          scrollEnabled: true,
+          todayForward: false,
+          showAllTab: true,
+        },
+      };
+
+      const KEY_TYPE_HINTS = {
+        league: "League keys are great for conference-style schedules and can render league layouts automatically.",
+        school: "School keys usually pair well with sport, gender, level, team, or school filters.",
+        state: "State keys typically benefit from classification tabs, showAllTab, and state-focused filters.",
+      };
+
+      const DEFAULT_PRESET_KEY = "school";
+      const TODAY_DEFAULT_VALUE = (() => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      })();
+      const WIDGET_OPTION_DEFAULTS = {
+        primaryColor: "#333333",
+        secondaryColor: "#ffffff",
+        logoUrl: "",
+        hideTitle: false,
+        titlePosition: 1,
+        header: true,
+        hideBranding: false,
+        scrollEnabled: true,
+        today: TODAY_DEFAULT_VALUE,
+        todayForward: false,
+        showAllTab: false,
+      };
+      const APPEARANCE_STATE_KEYS = [
+        "previewHeight",
+        "previewMobile",
+        "title",
+        "logoUrl",
+        "hideTitle",
+        "titlePosition",
+        "today",
+        "primaryColor",
+        "secondaryColor",
+      ];
+
+      const form = document.getElementById("generator-form");
+      const customKeyPanel = document.getElementById("customKeyPanel");
+      const previewFrame = document.getElementById("previewFrame");
+      const previewStatus = document.getElementById("previewStatus");
+      const targetBadge = document.getElementById("targetBadge");
+      const generatedCode = document.getElementById("generatedCode");
+      const copyCodeButton = document.getElementById("copyCodeButton");
+      const keyTypeHint = document.getElementById("keyTypeHint");
+      const resetGenerator = document.getElementById("resetGenerator");
+      const presetButtons = Array.from(document.querySelectorAll("[data-preset]"));
+      const rootStyle = document.documentElement;
+
+      let activePresetKey = DEFAULT_PRESET_KEY;
+      let customState = null;
+      let renderTimer = null;
+
+      const fields = {
+        keyType: document.getElementById("keyType"),
+        widgetKey: document.getElementById("widgetKey"),
+        previewHeight: document.getElementById("previewHeight"),
+        forceMobilePreview: document.getElementById("forceMobilePreview"),
+        title: document.getElementById("title"),
+        logoUrl: document.getElementById("logoUrl"),
+        hideTitle: document.getElementById("hideTitle"),
+        titlePosition: document.getElementById("titlePosition"),
+        today: document.getElementById("today"),
+        primaryColorText: document.getElementById("primaryColorText"),
+        primaryColorPicker: document.getElementById("primaryColorPicker"),
+        secondaryColorText: document.getElementById("secondaryColorText"),
+        secondaryColorPicker: document.getElementById("secondaryColorPicker"),
+        sportId: document.getElementById("sportId"),
+        genderId: document.getElementById("genderId"),
+        levelId: document.getElementById("levelId"),
+        teamId: document.getElementById("teamId"),
+        schoolId: document.getElementById("schoolId"),
+        header: document.getElementById("header"),
+        hideBranding: document.getElementById("hideBranding"),
+        scrollEnabled: document.getElementById("scrollEnabled"),
+        todayForward: document.getElementById("todayForward"),
+        showAllTab: document.getElementById("showAllTab"),
+      };
+
+      function normalizeTitlePosition(value) {
+        if (value === 2 || value === "2" || value === "TOP") return "2";
+        return "1";
+      }
+
+      function buildFormState() {
+        return {
+          keyType: fields.keyType.value,
+          key: fields.widgetKey.value,
+          target: FIXED_TARGET,
+          previewHeight: fields.previewHeight.value,
+          previewMobile: fields.forceMobilePreview.checked,
+          title: fields.title.value,
+          logoUrl: fields.logoUrl.value,
+          hideTitle: fields.hideTitle.checked,
+          titlePosition: normalizeTitlePosition(fields.titlePosition.value),
+          today: fields.today.value,
+          primaryColor: fields.primaryColorText.value,
+          secondaryColor: fields.secondaryColorText.value,
+          sportId: fields.sportId.value,
+          genderId: fields.genderId.value,
+          levelId: fields.levelId.value,
+          teamId: fields.teamId.value,
+          schoolId: fields.schoolId.value,
+          header: fields.header.checked,
+          hideBranding: fields.hideBranding.checked,
+          scrollEnabled: fields.scrollEnabled.checked,
+          todayForward: fields.todayForward.checked,
+          showAllTab: fields.showAllTab.checked,
+        };
+      }
+
+      function buildAppearanceState() {
+        const formState = buildFormState();
+
+        return APPEARANCE_STATE_KEYS.reduce((appearanceState, key) => {
+          appearanceState[key] = formState[key];
+          return appearanceState;
+        }, {});
+      }
+
+      function isHexColor(value) {
+        return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value.trim());
+      }
+
+      function normalizeHexColor(value) {
+        const trimmed = value.trim();
+        if (!isHexColor(trimmed)) return null;
+        if (trimmed.length === 4) {
+          return `#${trimmed[1]}${trimmed[1]}${trimmed[2]}${trimmed[2]}${trimmed[3]}${trimmed[3]}`.toLowerCase();
+        }
+        return trimmed.toLowerCase();
+      }
+
+      function normalizeOptionValueForSnippet(key, value) {
+        if (typeof value === "string") {
+          const trimmed = value.trim();
+          if (key === "primaryColor" || key === "secondaryColor") {
+            return normalizeHexColor(trimmed) || trimmed.toLowerCase();
+          }
+          return trimmed;
+        }
+
+        return value;
+      }
+
+      function getSnippetOptions(options) {
+        return Object.fromEntries(
+          Object.entries(options).filter(([key, value]) => {
+            if (!Object.prototype.hasOwnProperty.call(WIDGET_OPTION_DEFAULTS, key)) {
+              return true;
+            }
+
+            return normalizeOptionValueForSnippet(key, value) !== normalizeOptionValueForSnippet(key, WIDGET_OPTION_DEFAULTS[key]);
+          })
+        );
+      }
+
+      function clampByte(value) {
+        return Math.max(0, Math.min(255, Math.round(value)));
+      }
+
+      function parseColor(value) {
+        const normalizedHex = normalizeHexColor(value || "");
+
+        if (normalizedHex) {
+          return {
+            css: normalizedHex,
+            r: parseInt(normalizedHex.slice(1, 3), 16),
+            g: parseInt(normalizedHex.slice(3, 5), 16),
+            b: parseInt(normalizedHex.slice(5, 7), 16),
+          };
+        }
+
+        const rgbMatch = String(value || "")
+          .trim()
+          .match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*[\d.]+\s*)?\)$/i);
+
+        if (!rgbMatch) return null;
+
+        return {
+          css: `rgb(${clampByte(Number(rgbMatch[1]))}, ${clampByte(Number(rgbMatch[2]))}, ${clampByte(Number(rgbMatch[3]))})`,
+          r: clampByte(Number(rgbMatch[1])),
+          g: clampByte(Number(rgbMatch[2])),
+          b: clampByte(Number(rgbMatch[3])),
+        };
+      }
+
+      function toRgba(color, alpha) {
+        return `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`;
+      }
+
+      function toRgb(color) {
+        return `rgb(${color.r}, ${color.g}, ${color.b})`;
+      }
+
+      function blendColors(start, end, ratio) {
+        const mix = Math.max(0, Math.min(1, ratio));
+        return {
+          r: clampByte(start.r + (end.r - start.r) * mix),
+          g: clampByte(start.g + (end.g - start.g) * mix),
+          b: clampByte(start.b + (end.b - start.b) * mix),
+        };
+      }
+
+      function lightenColor(color, ratio) {
+        return blendColors(color, { r: 255, g: 255, b: 255 }, ratio);
+      }
+
+      function isDarkColor(value) {
+        const color = parseColor(value);
+        if (!color) return false;
+        const brightness = (color.r * 299 + color.g * 587 + color.b * 114) / 1000;
+        return brightness < 140;
+      }
+
+      function applyPreviewTheme(config) {
+        const fallbackPrimary = parseColor("#333333");
+        const primary = parseColor(config.options.primaryColor) || fallbackPrimary;
+        const secondary = config.options.secondaryColor ? parseColor(config.options.secondaryColor) : null;
+        const surface = secondary || primary;
+        const accent = primary;
+        const darkTheme = isDarkColor(surface.css);
+        const deepBase = { r: 11, g: 19, b: 32 };
+        const lightBase = { r: 248, g: 250, b: 252 };
+        const darkPanel = blendColors(surface, deepBase, 0.76);
+        const darkAlt = blendColors(accent, deepBase, 0.82);
+        const lightPanel = blendColors(surface, lightBase, 0.88);
+        const lightAlt = blendColors(surface, lightBase, 0.96);
+        const lightSoft = blendColors(surface, lightBase, 0.76);
+        const hasSecondarySurface = Boolean(secondary);
+        const previewUsesDarkSurface = hasSecondarySurface ? darkTheme : false;
+        const flatSurfaceColor = hasSecondarySurface
+          ? previewUsesDarkSurface
+            ? toRgb(lightenColor(surface, 0.1))
+            : toRgb(lightenColor(surface, 0.16))
+          : "rgb(255, 255, 255)";
+        const previewPanelBg = hasSecondarySurface
+          ? flatSurfaceColor
+          : "rgba(255, 255, 255, 0.98)";
+
+        rootStyle.style.setProperty(
+          "--page-bg",
+          hasSecondarySurface
+            ? previewPanelBg
+            : "rgb(255, 255, 255)"
+        );
+        rootStyle.style.setProperty("--page-ink", "#102332");
+        rootStyle.style.setProperty("--page-muted", "#5a6d7f");
+        rootStyle.style.setProperty("--label-ink", "#284153");
+        rootStyle.style.setProperty("--page-line", darkTheme ? "rgba(16, 35, 50, 0.10)" : "rgba(16, 35, 50, 0.08)");
+        rootStyle.style.setProperty("--panel-bg", darkTheme ? "rgba(255, 255, 255, 0.88)" : "rgba(255, 255, 255, 0.84)");
+        rootStyle.style.setProperty("--panel-border", darkTheme ? "rgba(255, 255, 255, 0.44)" : "rgba(255, 255, 255, 0.7)");
+        rootStyle.style.setProperty("--section-bg", darkTheme ? "rgba(255, 255, 255, 0.72)" : "rgba(255, 255, 255, 0.66)");
+        rootStyle.style.setProperty("--panel-shadow", darkTheme ? "0 30px 90px rgba(0, 0, 0, 0.34)" : "0 30px 80px rgba(10, 28, 42, 0.14)");
+        rootStyle.style.setProperty("--stat-bg", darkTheme ? "rgba(15, 23, 42, 0.06)" : "rgba(15, 23, 42, 0.04)");
+        rootStyle.style.setProperty("--stat-ink", "#274256");
+        rootStyle.style.setProperty("--preview-ink", previewUsesDarkSurface ? "rgba(248, 250, 252, 0.96)" : "#102332");
+        rootStyle.style.setProperty("--preview-muted", previewUsesDarkSurface ? "rgba(226, 232, 240, 0.82)" : "#4f6678");
+        rootStyle.style.setProperty("--preview-target-ink", previewUsesDarkSurface ? "rgba(241, 245, 249, 0.94)" : "#163247");
+        rootStyle.style.setProperty("--preview-panel-bg", previewPanelBg);
+        rootStyle.style.setProperty("--preview-panel-border", hasSecondarySurface ? (darkTheme ? toRgba(surface, 0.28) : toRgba(surface, 0.16)) : "rgba(15, 23, 42, 0.08)");
+        rootStyle.style.setProperty("--preview-panel-shadow", hasSecondarySurface ? (darkTheme ? "0 18px 34px rgba(0, 0, 0, 0.18)" : "0 12px 28px rgba(15, 23, 42, 0.06)") : "none");
+        rootStyle.style.setProperty("--preview-meta-bg", hasSecondarySurface ? (darkTheme ? toRgba(blendColors(surface, deepBase, 0.12), 0.62) : toRgba(lightSoft, 0.72)) : "rgba(255, 255, 255, 0.94)");
+        rootStyle.style.setProperty("--preview-meta-border", hasSecondarySurface ? (darkTheme ? toRgba(surface, 0.32) : toRgba(surface, 0.14)) : "rgba(15, 23, 42, 0.08)");
+        rootStyle.style.setProperty(
+          "--preview-shell-bg",
+          hasSecondarySurface
+            ? flatSurfaceColor
+            : "rgb(255, 255, 255)"
+        );
+        rootStyle.style.setProperty("--preview-shell-border", darkTheme ? "transparent" : "transparent");
+        rootStyle.style.setProperty("--preview-shell-shadow", "none");
+        rootStyle.style.setProperty("--preview-grid-color", darkTheme ? toRgba(surface, 0.08) : toRgba(surface, 0.07));
+        rootStyle.style.setProperty("--preview-frame-bg", "transparent");
+        rootStyle.style.setProperty("--preview-frame-shadow", "none");
+      }
+
+      function bindColorPair(textInput, pickerInput) {
+        textInput.addEventListener("input", () => {
+          const normalized = normalizeHexColor(textInput.value);
+          if (normalized) {
+            pickerInput.value = normalized;
+          }
+        });
+
+        pickerInput.addEventListener("input", () => {
+          textInput.value = pickerInput.value;
+        });
+      }
+
+      bindColorPair(fields.primaryColorText, fields.primaryColorPicker);
+      bindColorPair(fields.secondaryColorText, fields.secondaryColorPicker);
+
+      function parseMaybeNumber(value) {
+        const trimmed = value.trim();
+        if (!trimmed) return undefined;
+        return /^-?\d+$/.test(trimmed) ? Number(trimmed) : trimmed;
+      }
+
+      function buildOptions() {
+        const options = {
+          primaryColor: fields.primaryColorText.value.trim() || fields.primaryColorPicker.value,
+          secondaryColor: fields.secondaryColorText.value.trim() || fields.secondaryColorPicker.value,
+          logoUrl: fields.logoUrl.value.trim(),
+          hideTitle: fields.hideTitle.checked,
+          titlePosition: Number(normalizeTitlePosition(fields.titlePosition.value)),
+          header: fields.header.checked,
+          hideBranding: fields.hideBranding.checked,
+          scrollEnabled: fields.scrollEnabled.checked,
+          todayForward: fields.todayForward.checked,
+          showAllTab: fields.showAllTab.checked,
+        };
+
+        const title = fields.title.value.trim();
+        const today = fields.today.value;
+        const sportId = parseMaybeNumber(fields.sportId.value);
+        const genderId = parseMaybeNumber(fields.genderId.value);
+        const levelId = parseMaybeNumber(fields.levelId.value);
+        const teamId = parseMaybeNumber(fields.teamId.value);
+        const schoolId = parseMaybeNumber(fields.schoolId.value);
+
+        if (title) options.title = title;
+        if (today) options.today = today;
+        if (sportId !== undefined) options.sportId = sportId;
+        if (genderId !== undefined) options.genderId = genderId;
+        if (levelId !== undefined) options.levelId = levelId;
+        if (teamId !== undefined) options.teamId = teamId;
+        if (schoolId !== undefined) options.schoolId = schoolId;
+
+        return options;
+      }
+
+      function buildConfig() {
+        return {
+          target: FIXED_TARGET,
+          key: fields.widgetKey.value.trim(),
+          options: buildOptions(),
+        };
+      }
+
+      function formatValue(value) {
+        if (typeof value === "string") {
+          return JSON.stringify(value);
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+          return String(value);
+        }
+        return JSON.stringify(value);
+      }
+
+      function configToSnippet(config) {
+        const optionEntries = Object.entries(getSnippetOptions(config.options));
+        const optionLines = optionEntries.map(([key, value]) => `      ${key}: ${formatValue(value)}`).join(",\n");
+        const optionsBlock = optionEntries.length
+          ? [`    options: {`, optionLines, `    }`]
+          : [`    options: {}`];
+
+        const targetId = FIXED_TARGET.slice(1);
+        const safeKey = config.key || "YOUR-WIDGET-KEY";
+
+        return [
+          `<div id="${targetId}"></div>`,
+          `<script src="https://arbiter-widget.vercel.app/beta/widgets/v1/arbiter-schedule-widget.iife.js"><\/script>`,
+          `<script>`,
+          `  ArbiterScheduleWidget.init({`,
+          `    target: ${JSON.stringify(config.target)},`,
+          `    key: ${JSON.stringify(safeKey)},`,
+          ...optionsBlock,
+          `  });`,
+          `<\/script>`,
+        ].join("\n");
+      }
+
+      function setStatus(message, isError = false) {
+        if (!previewStatus) return;
+        previewStatus.textContent = message;
+        previewStatus.className = `status-pill ${isError ? "is-error" : "is-ok"}`;
+      }
+
+      function updateKeyTypeHint() {
+        const keyType = fields.keyType.value;
+        keyTypeHint.textContent = KEY_TYPE_HINTS[keyType] || "";
+      }
+
+      function updatePresetSelectionUI() {
+        presetButtons.forEach((button) => {
+          button.classList.toggle("is-active", button.dataset.preset === activePresetKey);
+        });
+
+        if (customKeyPanel) {
+          customKeyPanel.hidden = activePresetKey !== "custom";
+        }
+      }
+
+      function updatePreviewFrameHeight() {
+        const height = Math.max(360, Number(fields.previewHeight.value) || 720);
+        const isMobilePreview = fields.forceMobilePreview.checked;
+        const mountNode = document.getElementById(FIXED_TARGET.slice(1));
+
+        previewFrame.classList.toggle("force-mobile-preview", isMobilePreview);
+        previewFrame.style.width = "100%";
+        previewFrame.style.maxWidth = "100%";
+        previewFrame.style.margin = "0";
+        previewFrame.style.minHeight = `${isMobilePreview ? Math.max(568, height) : height}px`;
+
+        if (mountNode) {
+          mountNode.style.width = isMobilePreview ? "320px" : "100%";
+          mountNode.style.maxWidth = "100%";
+          mountNode.style.margin = isMobilePreview ? "0 auto" : "0";
+          mountNode.style.minHeight = `${isMobilePreview ? Math.max(568, height) : height}px`;
+        }
+      }
+
+      function updateGeneratedCode() {
+        const config = buildConfig();
+        applyPreviewTheme(config);
+        generatedCode.value = configToSnippet(config);
+        targetBadge.textContent = FIXED_TARGET;
+        updatePreviewFrameHeight();
+        updateKeyTypeHint();
+        updatePresetSelectionUI();
+      }
+
+      function scheduleRender(immediate = false) {
+        updateGeneratedCode();
+
+        if (renderTimer) {
+          clearTimeout(renderTimer);
+        }
+
+        if (!immediate) {
+          setStatus("Updating preview...");
+        }
+
+        renderTimer = setTimeout(() => {
+          renderPreview();
+        }, immediate ? 0 : 220);
+      }
+
+      function applyFormState(state) {
+        fields.keyType.value = state.keyType;
+        fields.widgetKey.value = state.key;
+        fields.previewHeight.value = state.previewHeight;
+        fields.forceMobilePreview.checked = Boolean(state.previewMobile);
+        fields.title.value = state.title;
+        fields.logoUrl.value = state.logoUrl || "";
+        fields.hideTitle.checked = Boolean(state.hideTitle);
+        fields.titlePosition.value = normalizeTitlePosition(state.titlePosition);
+        fields.today.value = state.today;
+        fields.primaryColorText.value = state.primaryColor;
+        fields.primaryColorPicker.value = normalizeHexColor(state.primaryColor) || "#333333";
+        fields.secondaryColorText.value = state.secondaryColor;
+        fields.secondaryColorPicker.value = normalizeHexColor(state.secondaryColor) || "#ffffff";
+        fields.sportId.value = state.sportId;
+        fields.genderId.value = state.genderId;
+        fields.levelId.value = state.levelId;
+        fields.teamId.value = state.teamId;
+        fields.schoolId.value = state.schoolId;
+        fields.header.checked = state.header;
+        fields.hideBranding.checked = state.hideBranding;
+        fields.scrollEnabled.checked = state.scrollEnabled;
+        fields.todayForward.checked = state.todayForward;
+        fields.showAllTab.checked = state.showAllTab;
+
+        updateGeneratedCode();
+      }
+
+      function syncCustomState() {
+        if (activePresetKey !== "custom") return;
+        customState = buildFormState();
+      }
+
+      function getCustomState() {
+        if (!customState) {
+          customState = {
+            ...buildFormState(),
+            key: "",
+          };
+        }
+
+        return customState;
+      }
+
+      function renderPreview() {
+        const config = buildConfig();
+
+        if (!config.key) {
+          setStatus("Enter a widget key to render the preview.", true);
+          return;
+        }
+
+        const mountNode = document.getElementById(FIXED_TARGET.slice(1));
+
+        if (!mountNode) {
+          setStatus("Preview mount element was not found.", true);
+          return;
+        }
+
+        try {
+          if (window.ArbiterScheduleWidget) {
+            try {
+              window.ArbiterScheduleWidget.destroy(FIXED_TARGET);
+            } catch (error) {
+              // Ignore the first render or unmounted targets.
+            }
+          }
+
+          updatePreviewFrameHeight();
+          window.ArbiterScheduleWidget.init(config);
+          setStatus("Preview updated successfully.");
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Preview failed to render.";
+          setStatus(message, true);
+        }
+      }
+
+      async function copyCode() {
+        const text = generatedCode.value;
+        try {
+          await navigator.clipboard.writeText(text);
+          copyCodeButton.textContent = "Copied";
+          setTimeout(() => {
+            copyCodeButton.textContent = "Copy Code";
+          }, 1400);
+        } catch (error) {
+          generatedCode.select();
+          document.execCommand("copy");
+          copyCodeButton.textContent = "Copied";
+          setTimeout(() => {
+            copyCodeButton.textContent = "Copy Code";
+          }, 1400);
+        }
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        scheduleRender(true);
+      });
+
+      form.addEventListener("input", () => {
+        syncCustomState();
+        scheduleRender(false);
+      });
+      form.addEventListener("change", () => {
+        syncCustomState();
+        scheduleRender(true);
+      });
+
+      presetButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const presetKey = button.dataset.preset;
+          if (presetKey === "custom") {
+            activePresetKey = "custom";
+            applyFormState({
+              ...getCustomState(),
+              ...buildAppearanceState(),
+            });
+            scheduleRender(true);
+            return;
+          }
+
+          const preset = PRESETS[presetKey];
+          if (!preset) return;
+          activePresetKey = presetKey;
+          applyFormState({
+            ...preset,
+            ...buildAppearanceState(),
+          });
+          scheduleRender(true);
+        });
+      });
+
+      resetGenerator.addEventListener("click", () => {
+        activePresetKey = DEFAULT_PRESET_KEY;
+        applyFormState(PRESETS[DEFAULT_PRESET_KEY]);
+        scheduleRender(true);
+      });
+
+      copyCodeButton.addEventListener("click", copyCode);
+
+      applyFormState(PRESETS[DEFAULT_PRESET_KEY]);
+      scheduleRender(true);
+    });
+  </script>
+</body>
+
+</html>
