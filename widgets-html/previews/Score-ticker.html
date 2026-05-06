@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Ticker Preview</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        background: #edf2f4;
+        font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .ticker-preview {
+        width: 200px;
+        max-width: 200px;
+        margin: 10px;
+        padding: 12px;
+      }
+
+      #arbiter-score-ticker-widget {
+        width: 120px;
+        /* overflow: hidden; */
+      }
+    </style>
+</head>
+
+<body>
+  <main class="ticker-preview">
+    <div id="arbiter-score-ticker-widget"></div>
+  </main>
+  <script src="https://widget.arbitersports.com/widgets/v1/arbiter-score-ticker.iife.js"></script>
+</body>
+<script>
+     ArbiterScoreTicker.init({
+        target: "#arbiter-score-ticker-widget",
+        key: "C5050393-1B76-4672-B12D-C5323EC06E33",
+        //key:"200641db-2fb8-48d6-b792-738b059fbf75",
+        options: {
+          today:"2026-03-10",
+          //genderId: 1,
+          //levelId: 1,
+          //teamId: 7557426,
+          //sportList: [4,25],
+          vertical: false,
+          primaryColor: "#d81d24",
+          secondaryColor: "#26213E",
+          //thirdColor: "#000000",
+          backgroundColor: "#ffffff",
+          hideLocation:false,
+        },
+      });
+</script>
+
+
+</html>
+

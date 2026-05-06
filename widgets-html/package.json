@@ -8,6 +8,9 @@
     "test:headed": "playwright test --headed",
     "test:roster": "playwright test tests/roster-widget.recorded.js",
     "test:roster:headed": "playwright test --headed tests/roster-widget.recorded.js",
+    "serve:qa": "npx http-server . -p 8080",
+    "qa:lighthouse:a11y": "npx lighthouse http://localhost:8080/index.html --only-categories=accessibility --view",
+    "qa:lighthouse": "npx lighthouse http://localhost:8080/index.html --view",
     "record:roster": "playwright codegen --target=javascript --output=tests/roster-widget.recorded.js https://sandbox.demo-rst7.rschooltoday.com/roster-for-state-ado-50786/",
     "postinstall": "playwright install chromium"
   },

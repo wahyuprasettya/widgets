@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChatGPT Table to Document</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #edf2f4;
+      --panel: #ffffff;
+      --text: #26213e;
+      --muted: #5f5a74;
+      --primary: #d81d24;
+      --primary-soft: #fdecee;
+      --primary-hover: #ba1b21;
+      --border: #dce2e4;
+      --shadow: 0 18px 48px rgba(38, 33, 62, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(216, 29, 36, 0.14), transparent 32rem),
+        linear-gradient(135deg, #f8fafc 0%, var(--bg) 100%);
+    }
+
+    .page {
+      width: min(1200px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0;
+      display: grid;
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Teko", "Inter", sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 0.95;
+    }
+
+    p { margin: 8px 0 0; color: var(--muted); }
+
+    textarea, input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 11px 12px;
+      font: inherit;
+      color: var(--text);
+      outline: none;
+    }
+
+    textarea:focus, input:focus {
+      border-color: rgba(216, 29, 36, 0.45);
+      box-shadow: 0 0 0 4px rgba(216, 29, 36, 0.12);
+    }
+
+    textarea {
+      min-height: 220px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.88rem;
+    }
+
+    .actions {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    button.secondary {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--primary-hover);
+    }
+
+    .status {
+      min-height: 22px;
+      margin-top: 10px;
+      font-size: 0.88rem;
+      color: var(--primary-hover);
+      font-weight: 600;
+    }
+
+    .preview-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: var(--primary-soft);
+      color: var(--primary-hover);
+    }
+
+    @media (max-width: 900px) {
+      .actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="panel">
+      <h1>ChatGPT Table to Document</h1>
+      <p>Paste tabel dari ChatGPT (format Markdown table atau tab-separated), lalu generate dokumen tabel otomatis.</p>
+    </section>
+
+    <section class="panel">
+      <label for="table-input">Paste Tabel</label>
+      <textarea id="table-input" placeholder="| Nama | Kelas | Nilai |
+| --- | --- | --- |
+| Budi | X-A | 90 |"></textarea>
+
+      <div style="margin-top: 10px;">
+        <label for="doc-name">Nama Dokumen</label>
+        <input id="doc-name" type="text" value="hasil-tabel-chatgpt" />
+      </div>
+
+      <div class="actions">
+        <button id="parse-btn" type="button">Generate Preview</button>
+        <button id="download-btn" type="button">Download .xlsx</button>
+        <button id="clear-btn" type="button" class="secondary">Clear</button>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
+
+    <section class="panel">
+      <strong>Preview Tabel</strong>
+      <div class="preview-wrap" style="margin-top: 10px;">
+        <table id="preview-table">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const input = document.getElementById("table-input");
+    const docName = document.getElementById("doc-name");
+    const parseBtn = document.getElementById("parse-btn");
+    const downloadBtn = document.getElementById("download-btn");
+    const clearBtn = document.getElementById("clear-btn");
+    const status = document.getElementById("status");
+    const tableHead = document.querySelector("#preview-table thead");
+    const tableBody = document.querySelector("#preview-table tbody");
+
+    let currentHeaders = [];
+    let currentRows = [];
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function isDividerRow(row) {
+      return row.every((cell) => /^:?-{3,}:?$/.test(cell.trim()));
+    }
+
+    function parseMarkdownTable(text) {
+      const lines = text
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .filter((line) => line.includes("|"));
+
+      if (lines.length < 2) return null;
+
+      const rows = lines.map((line) => {
+        const noEdges = line.replace(/^\|/, "").replace(/\|$/, "");
+        return noEdges.split("|").map((cell) => cell.trim());
+      });
+
+      const headers = rows[0];
+      const dataRows = rows.slice(1).filter((row) => !isDividerRow(row));
+
+      if (!headers.length || !dataRows.length) return null;
+      return { headers, rows: dataRows };
+    }
+
+    function parseTabSeparated(text) {
+      const lines = text
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      if (!lines.length || !lines[0].includes("\t")) return null;
+
+      const matrix = lines.map((line) => line.split("\t").map((cell) => cell.trim()));
+      return {
+        headers: matrix[0],
+        rows: matrix.slice(1),
+      };
+    }
+
+    function normalizeRows(headers, rows) {
+      const width = headers.length;
+      return rows.map((row) => {
+        const next = row.slice(0, width);
+        while (next.length < width) next.push("");
+        return next;
+      });
+    }
+
+    function renderPreview(headers, rows) {
+      tableHead.innerHTML = `<tr>${headers.map((h) => `<th>${escapeHtml(h)}</th>`).join("")}</tr>`;
+      tableBody.innerHTML = rows
+        .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`)
+        .join("");
+    }
+
+    function parseInput() {
+      const text = input.value.trim();
+      if (!text) {
+        status.textContent = "Paste dulu tabel dari ChatGPT.";
+        return false;
+      }
+
+      const parsed = parseMarkdownTable(text) || parseTabSeparated(text);
+      if (!parsed) {
+        status.textContent = "Format belum dikenali. Gunakan markdown table atau tab-separated.";
+        return false;
+      }
+
+      currentHeaders = parsed.headers;
+      currentRows = normalizeRows(parsed.headers, parsed.rows);
+      renderPreview(currentHeaders, currentRows);
+      status.textContent = `Preview berhasil dibuat (${currentRows.length} baris).`;
+      return true;
+    }
+
+    function downloadXlsx() {
+      if (!currentHeaders.length || !currentRows.length) {
+        const ok = parseInput();
+        if (!ok) return;
+      }
+
+      const safeName = (docName.value.trim() || "hasil-tabel-chatgpt").replace(/[^\w.-]+/g, "-");
+      const matrix = [currentHeaders, ...currentRows];
+      const sheet = XLSX.utils.aoa_to_sheet(matrix);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, sheet, "Tabel");
+      XLSX.writeFile(workbook, `${safeName}.xlsx`);
+      status.textContent = `File ${safeName}.xlsx berhasil diunduh.`;
+    }
+
+    parseBtn.addEventListener("click", parseInput);
+    downloadBtn.addEventListener("click", downloadXlsx);
+    clearBtn.addEventListener("click", () => {
+      input.value = "";
+      currentHeaders = [];
+      currentRows = [];
+      tableHead.innerHTML = "";
+      tableBody.innerHTML = "";
+      status.textContent = "Input dibersihkan.";
+    });
+  </script>
+</body>
+</html>

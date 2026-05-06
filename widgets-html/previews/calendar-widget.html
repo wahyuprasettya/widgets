@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calendar - Widget</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <div id="arbiter-calendar-widget">
+
+    </div>
+
+    <script src="https://arbiter-widget.vercel.app/beta/widgets/v1/arbiter-calendar-widget-beta.iife.js"></script>
+    <script>
+        ArbiterCalendarWidget.init({
+            target: "#arbiter-calendar-widget",
+            key: "ad337b94-a28d-440b-93d6-d9faa8a5223e",
+            options: {
+                "today": "2026-01-06",
+                "primaryColor": "#0b1c3d",
+                "secondaryColor": "#FFFFFF",
+                "defaultView": "month",
+                "defaultDisplayMode": "details",
+                "firstDayOfWeek": 0,
+                "maxEventsPerDay": 4,
+                "sportId": 4,
+                "genderId": 2
+            },
+        });
+    </script>
+    </body>
+
+</html>

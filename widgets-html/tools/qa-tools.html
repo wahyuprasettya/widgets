@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QA Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --bg: #eef4f7;
+      --panel: #ffffff;
+      --text: #111827;
+      --muted: #667085;
+      --line: #d8e2ea;
+      --accent: #d81d24;
+      --accent-dark: #ba1b21;
+      --accent-soft: #e0f2f1;
+      --code-bg: #111827;
+      --code-text: #d7fbe8;
+      --shadow: 0 18px 42px rgba(15, 23, 42, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(216, 29, 36, 0.14), transparent 28rem),
+        linear-gradient(135deg, #f8fafc 0%, var(--bg) 100%);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0;
+    }
+
+    .header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Teko", "Inter", sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4.7rem);
+      line-height: 0.9;
+      letter-spacing: 0;
+    }
+
+    .header p {
+      max-width: 680px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid rgba(216, 226, 234, 0.9);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .controls {
+      position: sticky;
+      top: 18px;
+      padding: 18px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      color: #344054;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #ffffff;
+      color: var(--text);
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: rgba(216, 29, 36, 0.45);
+      box-shadow: 0 0 0 4px rgba(216, 29, 36, 0.12);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+
+    .button:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .button.secondary {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--accent-dark);
+    }
+
+    .button.secondary:hover {
+      background: var(--accent-soft);
+    }
+
+    .status {
+      min-height: 22px;
+      margin-top: 12px;
+      color: var(--accent-dark);
+      font-size: 0.86rem;
+      font-weight: 800;
+    }
+
+    .lighthouse {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      background: rgba(248, 250, 252, 0.7);
+    }
+
+    .lighthouse h2 {
+      margin: 0;
+      font-family: "Teko", "Inter", sans-serif;
+      font-size: 2rem;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .lighthouse p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    pre {
+      margin: 0;
+      overflow: auto;
+      border-radius: 14px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 14px;
+      font-size: 0.84rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .result-panel {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .score-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .score-item strong {
+      display: block;
+      font-size: 1.3rem;
+      color: var(--accent-dark);
+      margin-top: 4px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.82rem;
+      color: var(--muted);
+      word-break: break-all;
+    }
+
+    @media (max-width: 940px) {
+      .header {
+        display: block;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        position: static;
+      }
+
+      .score-grid,
+      .metrics-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .score-grid,
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div>
+        <h1>QA Tools</h1>
+        <p>Audit cepat untuk widget lokal: accessibility dasar, struktur halaman, link, form label, iframe title, dan helper Lighthouse.</p>
+      </div>
+    </header>
+
+    <section class="grid">
+      <aside class="panel controls">
+        <div class="field">
+          <label for="public-url">Public URL untuk Lighthouse/PageSpeed</label>
+          <input id="public-url" type="url" placeholder="https://example.com/widget-page" />
+        </div>
+
+        <div class="field">
+          <label for="strategy">Strategi</label>
+          <select id="strategy">
+            <option value="mobile">Mobile</option>
+            <option value="desktop">Desktop</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="psi-api-key">Google API Key (Opsional, disarankan)</label>
+          <input id="psi-api-key" type="text" placeholder="AIza..." />
+        </div>
+
+        <div class="actions">
+          <button class="button" type="button" id="run-pagespeed">Run PageSpeed</button>
+          <button class="button secondary" type="button" id="open-pagespeed">Open PageSpeed</button>
+        </div>
+        <div class="status" id="status"></div>
+      </aside>
+
+      <section class="panel">
+        <div class="lighthouse">
+          <h2>PageSpeed Result</h2>
+          <p>Hasil diambil dari API PageSpeed Insights dan ditampilkan langsung di halaman QA ini.</p>
+        </div>
+
+        <div class="result-panel">
+          <div class="mono" id="analyzed-url">Belum ada URL dianalisis.</div>
+
+          <div class="score-grid">
+            <div class="score-item"><div>Performance</div><strong id="score-performance">-</strong></div>
+            <div class="score-item"><div>Accessibility</div><strong id="score-accessibility">-</strong></div>
+            <div class="score-item"><div>Best Practices</div><strong id="score-best-practices">-</strong></div>
+            <div class="score-item"><div>SEO</div><strong id="score-seo">-</strong></div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-item"><div>First Contentful Paint</div><strong id="metric-fcp">-</strong></div>
+            <div class="metric-item"><div>Largest Contentful Paint</div><strong id="metric-lcp">-</strong></div>
+            <div class="metric-item"><div>Total Blocking Time</div><strong id="metric-tbt">-</strong></div>
+            <div class="metric-item"><div>Cumulative Layout Shift</div><strong id="metric-cls">-</strong></div>
+            <div class="metric-item"><div>Speed Index</div><strong id="metric-si">-</strong></div>
+            <div class="metric-item"><div>Time to Interactive</div><strong id="metric-tti">-</strong></div>
+          </div>
+
+          <pre id="raw-summary">Menunggu hasil analisis...</pre>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const publicUrl = document.querySelector("#public-url");
+    const strategy = document.querySelector("#strategy");
+    const psiApiKey = document.querySelector("#psi-api-key");
+    const DEFAULT_PSI_API_KEY = "AIzaSyDvWcurgk2qXCWMV5gch29LTSTOBubpvm4";
+    const runPageSpeed = document.querySelector("#run-pagespeed");
+    const openPageSpeed = document.querySelector("#open-pagespeed");
+    const status = document.querySelector("#status");
+    const analyzedUrl = document.querySelector("#analyzed-url");
+    const rawSummary = document.querySelector("#raw-summary");
+
+    const scorePerformance = document.querySelector("#score-performance");
+    const scoreAccessibility = document.querySelector("#score-accessibility");
+    const scoreBestPractices = document.querySelector("#score-best-practices");
+    const scoreSeo = document.querySelector("#score-seo");
+
+    const metricFcp = document.querySelector("#metric-fcp");
+    const metricLcp = document.querySelector("#metric-lcp");
+    const metricTbt = document.querySelector("#metric-tbt");
+    const metricCls = document.querySelector("#metric-cls");
+    const metricSi = document.querySelector("#metric-si");
+    const metricTti = document.querySelector("#metric-tti");
+
+    function setScore(el, value) {
+      el.textContent = typeof value === "number" ? Math.round(value * 100) : "-";
+    }
+
+    function setMetric(el, value) {
+      el.textContent = value || "-";
+    }
+
+    function clearResults() {
+      [scorePerformance, scoreAccessibility, scoreBestPractices, scoreSeo].forEach((el) => {
+        el.textContent = "-";
+      });
+      [metricFcp, metricLcp, metricTbt, metricCls, metricSi, metricTti].forEach((el) => {
+        el.textContent = "-";
+      });
+      rawSummary.textContent = "Menunggu hasil analisis...";
+    }
+
+    async function runAnalysis() {
+      const url = publicUrl.value.trim();
+      if (!url) {
+        status.textContent = "Isi public URL dulu.";
+        return;
+      }
+
+      status.textContent = "Menjalankan PageSpeed...";
+      analyzedUrl.textContent = `Analisis: ${url} (${strategy.value})`;
+
+      const query = new URLSearchParams({
+        url,
+        strategy: strategy.value,
+        category: "performance",
+      });
+      query.append("category", "accessibility");
+      query.append("category", "best-practices");
+      query.append("category", "seo");
+
+      const key = psiApiKey.value.trim() || DEFAULT_PSI_API_KEY;
+      if (key) {
+        query.set("key", key);
+      }
+
+      const endpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?${query.toString()}`;
+
+      try {
+        const response = await fetch(endpoint);
+        if (!response.ok) {
+          let details = "";
+          try {
+            const errJson = await response.json();
+            details = errJson?.error?.message || "";
+          } catch (parseError) {
+            // ignore parsing issue
+          }
+
+          if (response.status === 429) {
+            throw new Error("HTTP 429 (quota/rate limit). Tambahkan Google API Key atau coba beberapa menit lagi.");
+          }
+
+          throw new Error(`HTTP ${response.status}${details ? `: ${details}` : ""}`);
+        }
+
+        const data = await response.json();
+        const lh = data.lighthouseResult || {};
+        const categories = lh.categories || {};
+        const audits = lh.audits || {};
+
+        setScore(scorePerformance, categories.performance?.score);
+        setScore(scoreAccessibility, categories.accessibility?.score);
+        setScore(scoreBestPractices, categories["best-practices"]?.score);
+        setScore(scoreSeo, categories.seo?.score);
+
+        setMetric(metricFcp, audits["first-contentful-paint"]?.displayValue);
+        setMetric(metricLcp, audits["largest-contentful-paint"]?.displayValue);
+        setMetric(metricTbt, audits["total-blocking-time"]?.displayValue);
+        setMetric(metricCls, audits["cumulative-layout-shift"]?.displayValue);
+        setMetric(metricSi, audits["speed-index"]?.displayValue);
+        setMetric(metricTti, audits["interactive"]?.displayValue);
+
+        rawSummary.textContent = JSON.stringify({
+          finalUrl: lh.finalUrl || data.id || url,
+          fetchTime: lh.fetchTime || null,
+          userAgent: lh.userAgent || null,
+        }, null, 2);
+        status.textContent = "Hasil PageSpeed berhasil ditampilkan.";
+      } catch (error) {
+        clearResults();
+        rawSummary.textContent = "Gagal mengambil data dari API PageSpeed.";
+        status.textContent = `Gagal menjalankan PageSpeed: ${error.message}`;
+      }
+    }
+
+    openPageSpeed.addEventListener("click", () => {
+      const url = publicUrl.value.trim();
+
+      if (!url) {
+        status.textContent = "Isi public URL dulu untuk membuka PageSpeed Insights.";
+        return;
+      }
+
+      window.open(`https://pagespeed.web.dev/analysis?url=${encodeURIComponent(url)}`, "_blank", "noopener,noreferrer");
+    });
+    runPageSpeed.addEventListener("click", runAnalysis);
+    psiApiKey.value = DEFAULT_PSI_API_KEY;
+    clearResults();
+  </script>
+</body>
+</html>

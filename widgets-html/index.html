@@ -4,15 +4,49 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Menu & Preview Widget</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
   <style>
     :root {
-      --bg: #f2f6fb;
+      --bg: #edf2f4;
       --panel: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --primary: #0f766e;
-      --primary-hover: #115e59;
-      --border: #dbe4ee;
+      --text: #26213e;
+      --muted: #5f5a74;
+      --primary: #d81d24;
+      --primary-soft: #fdecee;
+      --primary-hover: #ba1b21;
+      --border: #dce2e4;
+      --shadow: 0 18px 48px rgba(38, 33, 62, 0.12);
+      --frame-bg: #ffffff;
+      --control-bg: #f7f9fb;
+      --pill-bg: #edf2f4;
+      --soft-border: rgba(220, 226, 228, 0.95);
+      --device-width: 393px;
+      --device-height: 852px;
+      --device-radius: 28px;
+      --device-scale: 1;
+      --device-stage-width: 100%;
+      --device-stage-height: calc(100vh - 40px);
+    }
+
+    body.dark-theme {
+      --bg: #1f1a34;
+      --panel: #26213e;
+      --text: #f8fafc;
+      --muted: #bebad0;
+      --primary: #ff2a31;
+      --primary-soft: rgba(255, 42, 49, 0.16);
+      --primary-hover: #ffd9db;
+      --border: #3d3851;
+      --shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+      --frame-bg: #1b1630;
+      --control-bg: #211c38;
+      --pill-bg: #3d3851;
+      --soft-border: rgba(61, 56, 81, 0.95);
     }
 
     * {
@@ -21,79 +55,580 @@
 
     body {
       margin: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg);
+      font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(216, 29, 36, 0.14), transparent 32rem),
+        linear-gradient(135deg, #f8fafc 0%, var(--bg) 100%);
       color: var(--text);
+    }
+
+    body.dark-theme {
+      background:
+        radial-gradient(circle at top left, rgba(255, 42, 49, 0.2), transparent 34rem),
+        linear-gradient(135deg, #171229 0%, var(--bg) 100%);
     }
 
     .layout {
       min-height: 100vh;
       display: grid;
-      grid-template-columns: minmax(220px, 20%) 1fr;
+      grid-template-columns: minmax(280px, 22%) 1fr;
+      gap: 20px;
+      padding: 20px;
     }
 
     .sidebar {
+      align-self: start;
+      position: sticky;
+      top: 20px;
+      height: calc(100vh - 40px);
       background: var(--panel);
-      border-right: 1px solid var(--border);
-      padding: 20px 16px;
+      border: 1px solid var(--soft-border);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      overflow: auto;
     }
 
     .sidebar h1 {
-      margin: 0 0 8px;
-      font-size: 1.2rem;
+      margin: 0 0 10px;
+      font-family: "Teko", "Inter", sans-serif;
+      font-size: clamp(1.4rem, 2vw, 1.85rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: 0;
     }
 
     .sidebar p {
-      margin: 0 0 16px;
+      margin: 0 0 22px;
       color: var(--muted);
-      font-size: 0.95rem;
+      font-size: 0.96rem;
+      line-height: 1.5;
     }
 
     .menu {
       display: grid;
+      gap: 10px;
+    }
+
+    .menu-section {
+      display: grid;
+      gap: 8px;
+    }
+
+    .menu-group {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--control-bg);
+      overflow: hidden;
+    }
+
+    .menu-group summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 12px;
+      padding: 12px 14px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      list-style: none;
+    }
+
+    .menu-group summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .menu-group summary::after {
+      content: "+";
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: var(--pill-bg);
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .menu-group[open] summary::after {
+      content: "-";
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .menu-group-content {
+      display: grid;
+      gap: 8px;
+      padding: 0 10px 10px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--control-bg);
+    }
+
+    .control-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .control-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .control-help {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.83rem;
+      line-height: 1.45;
+    }
+
+    .device-control {
+      display: none;
+      gap: 8px;
+    }
+
+    body.mobile-preview .device-control {
+      display: grid;
+    }
+
+    .device-select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 10px 12px;
+      font: inherit;
+      outline: none;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .device-select:focus {
+      border-color: rgba(216, 29, 36, 0.45);
+      box-shadow: 0 0 0 4px rgba(216, 29, 36, 0.12);
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      padding: 4px;
+      border-radius: 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+    }
+
+    .segmented button,
+    .preview-toggle {
+      border: 0;
+      border-radius: 9px;
+      padding: 9px 10px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .segmented button.active,
+    .preview-toggle.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(216, 29, 36, 0.24);
     }
 
     .menu a {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       text-decoration: none;
-      text-align: center;
-      background: var(--primary);
-      color: #fff;
-      padding: 12px 16px;
-      border-radius: 10px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
       font-weight: 600;
-      transition: background 0.2s ease;
+      transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .menu a::after {
+      content: "›";
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: var(--pill-bg);
+      color: var(--muted);
+      font-size: 1.25rem;
+      line-height: 1;
     }
 
     .menu a:hover {
-      background: var(--primary-hover);
+      border-color: rgba(216, 29, 36, 0.35);
+      box-shadow: 0 10px 24px rgba(38, 33, 62, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .menu a.active {
+      background: var(--primary-soft);
+      border-color: rgba(216, 29, 36, 0.45);
+      color: var(--primary-hover);
+    }
+
+    .menu a.active::after {
+      background: var(--primary);
+      color: #fff;
     }
 
     .preview {
-      padding: 16px;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow: hidden;
+      transition: padding 0.25s ease;
+    }
+
+    .device-stage {
+      width: 100%;
+      height: calc(100vh - 40px);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .device-shell {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      border: 1px solid var(--soft-border);
+      border-radius: 22px;
+      background: var(--frame-bg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition:
+        width 0.25s ease,
+        height 0.25s ease,
+        border-radius 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.25s ease;
+    }
+
+    .device-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      overflow: hidden;
+      background: var(--frame-bg);
+    }
+
+    .device-statusbar,
+    .device-island,
+    .device-camera,
+    .device-home-indicator,
+    .device-button {
+      display: none;
+    }
+
+    .device-statusbar {
+      position: absolute;
+      inset: 12px 18px auto;
+      z-index: 3;
+      color: #f8fafc;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .statusbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .status-icons {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .signal-bars {
+      display: inline-flex;
+      align-items: end;
+      gap: 2px;
+      height: 10px;
+    }
+
+    .signal-bars span {
+      width: 3px;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: 0.95;
+    }
+
+    .signal-bars span:nth-child(1) { height: 4px; }
+    .signal-bars span:nth-child(2) { height: 6px; }
+    .signal-bars span:nth-child(3) { height: 8px; }
+    .signal-bars span:nth-child(4) { height: 10px; }
+
+    .wifi-icon {
+      width: 12px;
+      height: 9px;
+      border: 2px solid currentColor;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      border-bottom: 0;
+      position: relative;
+      opacity: 0.95;
+    }
+
+    .wifi-icon::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -1px;
+      width: 3px;
+      height: 3px;
+      margin-left: -1.5px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .battery-icon {
+      width: 20px;
+      height: 10px;
+      border: 1.8px solid currentColor;
+      border-radius: 3px;
+      position: relative;
+      opacity: 0.95;
+    }
+
+    .battery-icon::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: 1.5px;
+      background: currentColor;
+    }
+
+    .battery-icon::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      right: -3px;
+      width: 2px;
+      height: 5px;
+      border-radius: 0 1px 1px 0;
+      background: currentColor;
+    }
+
+    .device-island {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      z-index: 4;
+      width: 118px;
+      height: 30px;
+      margin-left: -59px;
+      border-radius: 999px;
+      background: rgba(2, 6, 23, 0.96);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 8px 18px rgba(0, 0, 0, 0.22);
+      pointer-events: none;
+    }
+
+    .device-camera {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      z-index: 4;
+      width: 16px;
+      height: 16px;
+      margin-left: -8px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 35% 35%, rgba(148, 163, 184, 0.85), rgba(15, 23, 42, 0.96) 55%, rgba(2, 6, 23, 1) 100%);
+      box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.98);
+      pointer-events: none;
+    }
+
+    .device-home-indicator {
+      position: absolute;
+      left: 50%;
+      bottom: 9px;
+      z-index: 4;
+      width: 134px;
+      height: 5px;
+      margin-left: -67px;
+      border-radius: 999px;
+      background: rgba(248, 250, 252, 0.82);
+      pointer-events: none;
+    }
+
+    .device-button {
+      position: absolute;
+      right: -3px;
+      width: 3px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(71, 85, 105, 0.95), rgba(15, 23, 42, 0.92));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .device-button.volume-up {
+      top: 112px;
+      height: 54px;
+    }
+
+    .device-button.volume-down {
+      top: 176px;
+      height: 54px;
+    }
+
+    .device-button.power {
+      top: 150px;
+      height: 78px;
+    }
+
+    .device-button.left {
+      right: auto;
+      left: -3px;
     }
 
     .preview-frame {
+      display: block;
       width: 100%;
-      height: calc(100vh - 32px);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #fff;
+      height: 100%;
+      border: 0;
+      background: var(--frame-bg);
+      border-radius: inherit;
+    }
+
+    body.desktop-preview .device-stage {
+      height: auto;
+      min-height: 0;
+      width: 100%;
+    }
+
+    body.desktop-preview .device-shell {
+      height: auto;
+      min-height: 0;
+    }
+
+    body.desktop-preview .preview-frame {
+      height: var(--desktop-frame-height, calc(100vh - 40px));
+      min-height: 420px;
+      max-height: calc(100vh - 40px);
+    }
+
+    body.mobile-preview .preview {
+      padding: 10px 0 0;
+    }
+
+    body.mobile-preview .device-stage {
+      width: var(--device-stage-width);
+      height: var(--device-stage-height);
+      padding-top: 8px;
+    }
+
+    body.mobile-preview .device-shell {
+      width: calc(var(--device-width) + 24px);
+      height: calc(var(--device-height) + 24px);
+      padding: 12px;
+      border: 0;
+      border-radius: calc(var(--device-radius) + 18px);
+      background:
+        linear-gradient(180deg, rgba(100, 116, 139, 0.98), rgba(15, 23, 42, 0.98) 24%, rgba(2, 6, 23, 1) 100%);
+      box-shadow:
+        0 30px 60px rgba(15, 23, 42, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.32);
+      transform: scale(var(--device-scale));
+      transform-origin: top center;
+    }
+
+    body.mobile-preview .device-screen {
+      width: var(--device-width);
+      height: var(--device-height);
+      border-radius: var(--device-radius);
+      background: #05070b;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+        inset 0 0 0 2px rgba(15, 23, 42, 0.22);
+    }
+
+    body.mobile-preview .device-shell[data-device-family="iphone"] .device-island,
+    body.mobile-preview .device-shell[data-device-family="android"] .device-camera,
+    body.mobile-preview .device-statusbar,
+    body.mobile-preview .device-home-indicator,
+    body.mobile-preview .device-button {
+      display: block;
+    }
+
+    body.mobile-preview .device-statusbar .statusbar-inner,
+    body.mobile-preview .device-statusbar .status-icons {
+      display: flex;
+    }
+
+    body.mobile-preview .device-shell[data-device-family="iphone"] .device-statusbar {
+      inset: 16px 24px auto;
+    }
+
+    body.mobile-preview .device-shell[data-device-family="android"] .device-statusbar {
+      inset: 16px 18px auto;
+    }
+
+    body.mobile-preview .preview-frame {
+      background: #ffffff;
     }
 
     @media (max-width: 900px) {
       .layout {
         grid-template-columns: 1fr;
+        padding: 12px;
       }
 
       .sidebar {
-        border-right: 0;
-        border-bottom: 1px solid var(--border);
+        position: static;
+        height: auto;
+        border-radius: 18px;
       }
 
       .preview-frame {
         height: 70vh;
+        border-radius: 18px;
+      }
+
+      body.mobile-preview .device-stage {
+        height: min(78vh, var(--device-stage-height));
       }
     }
   </style>
@@ -101,25 +636,225 @@
 <body>
   <main class="layout">
     <aside class="sidebar">
-      <h1>Select Page</h1>
+      <h1>Widget Preview</h1>
+      <p>Buka generator atau QA tools langsung dari panel preview.</p>
+
+      <div class="controls" aria-label="Pengaturan tampilan">
+        <div class="control-group">
+          <span class="control-label">Tema</span>
+          <div class="segmented" role="group" aria-label="Pilih tema">
+            <button class="theme-toggle active" type="button" data-theme="light">Light</button>
+            <button class="theme-toggle" type="button" data-theme="dark">Dark</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">Preview</span>
+          <div class="segmented" role="group" aria-label="Pilih ukuran preview">
+            <button class="preview-toggle active" type="button" data-preview="desktop">Desktop</button>
+            <button class="preview-toggle" type="button" data-preview="mobile">Mobile</button>
+          </div>
+        </div>
+
+        <div class="control-group device-control">
+          <label class="control-label" for="device-preset">Device Mobile</label>
+          <select id="device-preset" class="device-select" aria-label="Pilih device mobile">
+            <option value="iphone-se">iPhone SE</option>
+            <option value="iphone-14-pro" selected>iPhone 14 Pro</option>
+            <option value="iphone-15-pro-max">iPhone 15 Pro Max</option>
+            <option value="xiaomi-redmi-note-13">Xiaomi Redmi Note 13</option>
+            <option value="xiaomi-13">Xiaomi 13</option>
+            <option value="samsung-s23">Samsung Galaxy S23</option>
+            <option value="pixel-8">Google Pixel 8</option>
+          </select>
+          <p class="control-help" id="device-meta">393 x 852 px viewport</p>
+        </div>
+      </div>
 
       <nav class="menu">
-        <a href="Upcoming Game Widget Preview.html" target="preview">Upcoming Game Widget Preview</a>
-        <a href="schedule-widget.html" target="preview">Schedule Widget</a>
-        <a href="Score-ticker.html" target="preview">Score Ticker</a>
-        <a href="roster-widget.html" target="preview">Roster Widget</a>
-        <a href="schedule-widget-generator.html" target="preview">Schedule Widget Generator</a>
+        <details class="menu-group">
+          <summary>QA</summary>
+          <div class="menu-group-content">
+            <a href="tools/qa-tools.html" target="preview">QA Tools</a>
+            <a href="generators/chatgpt-table-to-doc-generator.html" target="preview">ChatGPT Table to Doc</a>
+          </div>
+        </details>
+
+        <details class="menu-group" open>
+          <summary>Generator</summary>
+          <div class="menu-group-content">
+            <a class="active" href="generators/widget-script-generator.html" target="preview">Widget Generator</a>
+            <a href="generators/schedule-widget-generator.html" target="preview">Advanced Schedule</a>
+          </div>
+        </details>
       </nav>
     </aside>
 
     <section class="preview">
-      <iframe
-        class="preview-frame"
-        name="preview"
-        src="Upcoming Game Widget Preview.html"
-        title="Preview HTML"
-      ></iframe>
+      <div class="device-stage" id="device-stage">
+        <div class="device-shell" id="device-shell" data-device-family="iphone">
+          <span class="device-button left volume-up" aria-hidden="true"></span>
+          <span class="device-button left volume-down" aria-hidden="true"></span>
+          <span class="device-button power" aria-hidden="true"></span>
+          <div class="device-screen">
+            <div class="device-statusbar" aria-hidden="true">
+              <div class="statusbar-inner">
+                <span>9:41</span>
+                <span class="status-icons">
+                  <span class="signal-bars">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                  <span class="wifi-icon"></span>
+                  <span class="battery-icon"></span>
+                </span>
+              </div>
+            </div>
+            <div class="device-island" aria-hidden="true"></div>
+            <div class="device-camera" aria-hidden="true"></div>
+            <iframe
+              class="preview-frame"
+              name="preview"
+              src="generators/widget-script-generator.html"
+              title="Preview HTML"
+            ></iframe>
+            <div class="device-home-indicator" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
+
+  <script>
+    const menuLinks = document.querySelectorAll(".menu a");
+    const themeButtons = document.querySelectorAll(".theme-toggle");
+    const previewButtons = document.querySelectorAll(".preview-toggle");
+    const previewPanel = document.querySelector(".preview");
+    const deviceStage = document.querySelector("#device-stage");
+    const deviceShell = document.querySelector("#device-shell");
+    const previewFrame = document.querySelector(".preview-frame");
+    const devicePreset = document.querySelector("#device-preset");
+    const deviceMeta = document.querySelector("#device-meta");
+    const devicePresets = {
+      "iphone-se": { width: 375, height: 667, radius: 24, family: "iphone", label: "375 x 667 px viewport" },
+      "iphone-14-pro": { width: 393, height: 852, radius: 28, family: "iphone", label: "393 x 852 px viewport" },
+      "iphone-15-pro-max": { width: 430, height: 932, radius: 30, family: "iphone", label: "430 x 932 px viewport" },
+      "xiaomi-redmi-note-13": { width: 393, height: 851, radius: 24, family: "android", label: "393 x 851 px viewport" },
+      "xiaomi-13": { width: 393, height: 873, radius: 24, family: "android", label: "393 x 873 px viewport" },
+      "samsung-s23": { width: 360, height: 780, radius: 26, family: "android", label: "360 x 780 px viewport" },
+      "pixel-8": { width: 412, height: 915, radius: 28, family: "android", label: "412 x 915 px viewport" }
+    };
+
+    function applyDevicePreset(deviceKey) {
+      const preset = devicePresets[deviceKey] || devicePresets["iphone-14-pro"];
+
+      document.documentElement.style.setProperty("--device-width", `${preset.width}px`);
+      document.documentElement.style.setProperty("--device-height", `${preset.height}px`);
+      document.documentElement.style.setProperty("--device-radius", `${preset.radius}px`);
+      deviceShell.dataset.deviceFamily = preset.family;
+      deviceMeta.textContent = preset.label;
+      syncDeviceStage(preset);
+    }
+
+    function syncDeviceStage(preset = devicePresets[devicePreset.value] || devicePresets["iphone-14-pro"]) {
+      if (!document.body.classList.contains("mobile-preview")) {
+        document.documentElement.style.setProperty("--device-scale", "1");
+        document.documentElement.style.setProperty("--device-stage-width", "100%");
+        document.documentElement.style.setProperty("--device-stage-height", "calc(100vh - 40px)");
+        syncDesktopFrameHeight();
+        return;
+      }
+
+      const shellWidth = preset.width + 24;
+      const shellHeight = preset.height + 24;
+      const availableWidth = Math.max(280, previewPanel.clientWidth - 24);
+      const availableHeight = Math.max(480, window.innerHeight - 72);
+      const scale = Math.min(1, availableWidth / shellWidth, availableHeight / shellHeight);
+      const stageWidth = Math.round(shellWidth * scale);
+      const stageHeight = Math.round(shellHeight * scale) + 8;
+
+      document.documentElement.style.setProperty("--device-scale", `${scale}`);
+      document.documentElement.style.setProperty("--device-stage-width", `${stageWidth}px`);
+      document.documentElement.style.setProperty("--device-stage-height", `${stageHeight}px`);
+    }
+
+    function syncDesktopFrameHeight() {
+      if (document.body.classList.contains("mobile-preview")) {
+        return;
+      }
+
+      let desktopHeight = Math.max(420, window.innerHeight - 40);
+
+      try {
+        const frameDocument = previewFrame.contentDocument || previewFrame.contentWindow?.document;
+        const frameBody = frameDocument?.body;
+        const frameRoot = frameDocument?.documentElement;
+
+        if (frameBody && frameRoot) {
+          const contentHeight = Math.max(
+            frameBody.scrollHeight,
+            frameBody.offsetHeight,
+            frameRoot.scrollHeight,
+            frameRoot.offsetHeight
+          );
+          desktopHeight = Math.min(Math.max(420, contentHeight), Math.max(420, window.innerHeight - 40));
+        }
+      } catch (error) {
+        // Ignore cross-origin reads and keep fallback height.
+      }
+
+      document.documentElement.style.setProperty("--desktop-frame-height", `${desktopHeight}px`);
+    }
+
+    menuLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        menuLinks.forEach((item) => item.classList.remove("active"));
+        link.classList.add("active");
+        window.setTimeout(syncDesktopFrameHeight, 200);
+        window.setTimeout(syncDesktopFrameHeight, 800);
+      });
+    });
+
+    themeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const isDark = button.dataset.theme === "dark";
+
+        document.body.classList.toggle("dark-theme", isDark);
+        themeButtons.forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+      });
+    });
+
+    previewButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const isMobile = button.dataset.preview === "mobile";
+
+        document.body.classList.toggle("mobile-preview", isMobile);
+        document.body.classList.toggle("desktop-preview", !isMobile);
+        previewButtons.forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        syncDeviceStage();
+      });
+    });
+
+    devicePreset.addEventListener("change", () => {
+      applyDevicePreset(devicePreset.value);
+    });
+
+    window.addEventListener("resize", () => {
+      syncDeviceStage();
+    });
+
+    previewFrame.addEventListener("load", () => {
+      syncDesktopFrameHeight();
+      window.setTimeout(syncDesktopFrameHeight, 300);
+      window.setTimeout(syncDesktopFrameHeight, 1000);
+    });
+
+    document.body.classList.add("desktop-preview");
+    applyDevicePreset(devicePreset.value);
+  </script>
 </body>
 </html>
